@@ -1,0 +1,45 @@
+.env
+*.pyc
+__pycache__/
+db.sqlite3
+migrations/
+*.log
+
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.env
+.venv
+db.sqlite3
+*.log
+
+# Django
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+# Vue
+node_modules/
+dist/
+dist-ssr/
+*.local
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+'@ | Out-File -FilePath .gitignore -Encoding UTF8
