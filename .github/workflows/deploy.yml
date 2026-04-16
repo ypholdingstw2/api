@@ -1,0 +1,38 @@
+name: Deploy Vue to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]   # 当 main 分支有推送时触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend   # 若仓库根目录即为前端项目，则去掉此参数
+
+      - name: Build
+        run: npm run build
+        working-directory: ./frontend
+        env:
+          VITE_API_BASE_URL: http://114.34.157.56:8000/api   # 生产环境后端地址
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/dist
+          publish_branch: gh-pages
+          keep_files: false   # 清除旧文件
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Deploy Vue app to GitHub Pages'
