@@ -18,6 +18,7 @@ const app = createApp(App)
 // 依序註冊 Pinia 和 Router
 app.use(createPinia())  // Pinia 必須先註冊
 app.use(router)         // 然後註冊 Router
+app.config.errorHandler = (err) => console.error(err)
 
 // 掛載 app
 app.mount('#app')
