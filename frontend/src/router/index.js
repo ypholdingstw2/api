@@ -1,5 +1,6 @@
 // frontend/src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
+
 import Dashboard from '../views/Dashboard.vue'
 import OrderForm from '../views/OrderForm.vue'
 import OrderList from '../views/OrderList.vue'
