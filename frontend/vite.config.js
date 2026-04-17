@@ -34,10 +34,12 @@ export default defineConfig(({ mode }) => {
     
     // 🔒 構建優化：避免 console.log 洩漏敏感資訊
     build: {
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'vendor': ['vue', 'vue-router', 'axios']
+        rollupOptions: {
+          output: {
+            // ✅ 正确：使用函数
+            manualChunks(id) {
+              if (id.includes('node_modules')) {
+                return 'vendor'
           }
         }
       }
