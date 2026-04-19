@@ -999,3 +999,80 @@ git commit -m "Deploy to GitHub Pages"
 git branch -M gh-pages
 git remote add origin https://github.com/ypholdingstw2/api.git
 git push -u origin gh-pages --force
+
+
+
+
+
+//2026.04.20
+太好了！既然系统已经可以正常运行（登录、左侧菜单、功能占位页面），我们建立一个**更新记忆点**，方便后续继续开发时能够回退到当前稳定状态。
+
+## 📌 记忆点操作指南（请执行以下任一种）
+
+### 方式一：使用 Git 提交（推荐，最规范）
+
+```bash
+# 进入项目根目录
+cd C:\Shares\Coding\EqWizard_03
+
+# 查看当前修改状态
+git status
+
+# 将所有修改添加到暂存区
+git add .
+
+# 提交一个清晰的版本标签
+git commit -m "MEMORY_POINT: 稳定版本 - 左侧菜单+10个功能占位+登录跳转修复"
+
+# 可选：打一个轻量标签方便快速切换
+git tag v0.1-stable
+```
+
+### 方式二：手动备份（无 Git 时使用）
+
+1. 复制整个项目文件夹 `EqWizard_03` 到同目录下的备份文件夹，例如 `EqWizard_03_backup_20250420`。
+2. 压缩备份文件夹留存。
+
+---
+
+## 📋 当前稳定状态的关键配置摘要
+
+| 模块 | 文件 | 关键点 |
+|------|------|--------|
+| **路由** | `frontend/src/router/index.js` | ✅ 使用 `createWebHashHistory`<br>✅ 父路由 `/dashboard` 含子路由 `func1`…`func10`<br>✅ 添加了 `/func1` → `/dashboard/func1` 重定向（消除警告） |
+| **布局** | `frontend/src/views/Dashboard.vue` | ✅ 左侧菜单 + 右侧内容区<br>✅ 菜单项 `path` 为绝对路径 `/dashboard/funcX`<br>✅ `filteredMenu` 支持管理员权限过滤 |
+| **登录** | `frontend/src/views/Login.vue` | ✅ 跳转使用 `router.push('/dashboard')`<br>✅ 样式完整（渐变背景、卡片阴影） |
+| **注册** | `frontend/src/views/Register.vue` | ✅ 注册成功后跳转 `/login` |
+| **API** | `frontend/src/api/index.js` | ✅ 使用 `import.meta.env.VITE_API_BASE_URL`<br>✅ 开发环境代理 `/api` 到后端 |
+| **环境变量** | `.env.development` | ✅ `VITE_API_BASE_URL=/api` |
+| **构建** | `frontend/vite.config.js` | ✅ `base: '/'`（开发环境）<br>✅ 代理目标 `http://192.168.200.147:8000` |
+| **后端** | `backend/backend/settings.py` | ✅ `ALLOWED_HOSTS` 包含内网 IP<br>✅ `CORS_ALLOWED_ORIGINS` 包含前端地址 |
+
+---
+
+## 🚀 后续开发建议
+
+1. **每次新增功能前**，先执行 `git commit -m "WIP: 描述"` 保存当前进度。
+2. **如果修改后出现问题**，可以快速回滚：
+   ```bash
+   git checkout v0.1-stable   # 回到记忆点
+   ```
+   或手动恢复备份文件夹。
+3. **新增功能 API 时**，推荐在后端 `orders/views.py` 中新增 ViewSet，前端对应增加菜单项和组件。
+
+---
+
+## 📝 记录当前文件哈希（可选）
+
+你可以运行以下命令生成当前所有核心文件的 MD5，以便未来校验是否被意外修改：
+
+```powershell
+Get-FileHash C:\Shares\Coding\EqWizard_03\frontend\src\router\index.js -Algorithm MD5
+Get-FileHash C:\Shares\Coding\EqWizard_03\frontend\src\views\Dashboard.vue -Algorithm MD5
+Get-FileHash C:\Shares\Coding\EqWizard_03\frontend\src\views\Login.vue -Algorithm MD5
+# ... 其他重要文件
+```
+
+---
+
+现在，你已经拥有一个可靠的**开发基准点**。接下来可以放心地增加新功能，随时可以回到这个稳定状态。祝你开发顺利！
