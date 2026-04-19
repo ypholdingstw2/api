@@ -1,5 +1,3 @@
-<!-- frontend/src/views/Login.vue -->
-
 <template>
   <div class="login-container">
     <div class="login-card">
@@ -66,7 +64,6 @@ const handleLogin = async () => {
   error.value = ''
   
   try {
-    // 呼叫後端 API 取得 Token
     const response = await axios.post('/api-token-auth/', {
       username: username.value,
       password: password.value
@@ -75,18 +72,15 @@ const handleLogin = async () => {
     const token = response.data.token
     localStorage.setItem('token', token)
     
-    // 取得使用者資料
     await userStore.fetchProfile()
     
-    // 儲存管理員狀態
     if (userStore.currentUser?.is_staff) {
       localStorage.setItem('isAdmin', 'true')
     } else {
       localStorage.removeItem('isAdmin')
     }
     
-    // 跳轉到首頁
-    router.push('/')
+    router.push('/dashboard')
     
   } catch (err) {
     console.error('登入錯誤:', err)
@@ -108,22 +102,30 @@ const handleLogin = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
-  background: #f5f5f5;
+  min-height: 100vh;   /* 改为 100vh，确保全屏居中 */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* 使用渐变背景，与系统风格一致 */
 }
 
 .login-card {
   background: white;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  width: 400px;
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+  width: 420px;
+  max-width: 90%;
+  transition: transform 0.2s;
+}
+
+.login-card:hover {
+  transform: translateY(-5px);
 }
 
 .login-card h2 {
   text-align: center;
   margin-bottom: 2rem;
   color: #1a1a2e;
+  font-weight: 600;
 }
 
 .form-group {
@@ -135,36 +137,43 @@ const handleLogin = async () => {
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: #333;
+  font-size: 0.9rem;
 }
 
 .form-group input {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #0f3460;
+  box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
 }
 
 .login-btn {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.85rem;
   background: #0f3460;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.1s;
 }
 
 .login-btn:hover:not(:disabled) {
   background: #1a4a7a;
+}
+
+.login-btn:active {
+  transform: scale(0.98);
 }
 
 .login-btn:disabled {
@@ -177,18 +186,21 @@ const handleLogin = async () => {
   padding: 0.75rem;
   background: #f8d7da;
   color: #721c24;
-  border-radius: 6px;
+  border-radius: 8px;
   text-align: center;
+  font-size: 0.9rem;
 }
 
 .register-link {
   margin-top: 1.5rem;
   text-align: center;
+  font-size: 0.9rem;
 }
 
 .register-link a {
   color: #0f3460;
   text-decoration: none;
+  font-weight: 500;
 }
 
 .register-link a:hover {
@@ -207,12 +219,13 @@ const handleLogin = async () => {
 
 .demo-info p {
   margin: 0.5rem 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #666;
+  text-align: center;
 }
 
 .demo-info .hint {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #999;
 }
 </style>
