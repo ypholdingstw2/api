@@ -1,17 +1,10 @@
 import axios from 'axios'
 
-// const api = axios.create({
-//   // 後端 API 網址（你 ERP 的位址）
-//   baseURL: '/api',
-//   timeout: 10000,
-// })
-
 // 使用環境變數決定 API 位置
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 30000,
 })
-
 
 // 2. 請求攔截器：發送前自動帶 Token
 api.interceptors.request.use(
