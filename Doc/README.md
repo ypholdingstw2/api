@@ -1076,3 +1076,270 @@ Get-FileHash C:\Shares\Coding\EqWizard_03\frontend\src\views\Login.vue -Algorith
 ---
 
 现在，你已经拥有一个可靠的**开发基准点**。接下来可以放心地增加新功能，随时可以回到这个稳定状态。祝你开发顺利！
+
+
+
+
+
+
+在当前的 Vue + Django REST Framework 架构下，新增一个完整的功能模块（例如“产品管理”、“持仓分析”等），需要在前端和后端分别进行一系列操作。下面我按照开发顺序，详细列出需要增加或调整的**所有代码文件及具体内容**。
+
+---
+
+## 一、后端（Django）开发步骤
+
+### 1. 定义数据模型（如果需要存储数据）
+**文件**：`backend/orders/models.py`（或新建一个 app，但这里沿用 `orders` app）
+
+```python
+# 示例：新增一个 Product 模型
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=20, unique=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+```
+
+然后运行：
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### 2. 创建序列化器（Serializer）
+**文件**：`backend/orders/serializers.py`
+
+```python
+from .models import Product
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
+```
+
+### 3. 创建视图（ViewSet 或 APIView）
+**文件**：`backend/orders/views.py`
+
+```python
+from .models import Product
+from .serializers import ProductSerializer
+from rest_framework import viewsets, permissions
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticated]   # 需要登录
+```
+
+### 4. 注册路由
+**文件**：`backend/orders/urls.py`
+
+```python
+from .views import ProductViewSet
+
+router.register(r'products', ProductViewSet)   # 添加这行
+```
+
+此时后端 API 端点可用：
+- `GET /api/products/` – 列表
+- `POST /api/products/` – 创建
+- `GET /api/products/{id}/` – 详情
+- `PUT/PATCH /api/products/{id}/` – 更新
+- `DELETE /api/products/{id}/` – 删除
+
+### 5. 注册到 Admin 后台（可选）
+**文件**：`backend/orders/admin.py`
+
+```python
+from .models import Product
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['name', 'code', 'price', 'created_at']
+```
+
+---
+
+## 二、前端（Vue）开发步骤
+
+### 1. 创建 API 调用模块
+**文件**：`frontend/src/api/product.js`
+
+```javascript
+import api from './index'
+
+export const productApi = {
+  // 获取列表
+  getProducts(params) {
+    return api.get('/products/', { params })
+  },
+  // 获取单个
+  getProduct(id) {
+    return api.get(`/products/${id}/`)
+  },
+  // 创建
+  createProduct(data) {
+    return api.post('/products/', data)
+  },
+  // 更新
+  updateProduct(id, data) {
+    return api.patch(`/products/${id}/`, data)
+  },
+  // 删除
+  deleteProduct(id) {
+    return api.delete(`/products/${id}/`)
+  }
+}
+```
+
+### 2. 创建 Pinia Store（状态管理）
+**文件**：`frontend/src/stores/product.js`
+
+```javascript
+import { defineStore } from 'pinia'
+import { productApi } from '../api/product'
+
+export const useProductStore = defineStore('product', {
+  state: () => ({
+    products: [],
+    loading: false,
+  }),
+  actions: {
+    async fetchProducts() {
+      this.loading = true
+      try {
+        const res = await productApi.getProducts()
+        this.products = res.data
+        return { success: true, data: res.data }
+      } catch (err) {
+        return { success: false, message: err.message }
+      } finally {
+        this.loading = false
+      }
+    },
+    async createProduct(data) {
+      // 类似实现
+    },
+    // 其他 actions...
+  }
+})
+```
+
+### 3. 创建页面组件（View）
+**文件**：`frontend/src/views/ProductList.vue`
+
+```vue
+<template>
+  <div>
+    <h2>產品列表</h2>
+    <div v-if="store.loading">載入中...</div>
+    <ul v-else>
+      <li v-for="p in store.products" :key="p.id">
+        {{ p.name }} - {{ p.price }}
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script setup>
+import { onMounted } from 'vue'
+import { useProductStore } from '../stores/product'
+
+const store = useProductStore()
+onMounted(() => {
+  store.fetchProducts()
+})
+</script>
+```
+
+### 4. 添加路由
+**文件**：`frontend/src/router/index.js`
+
+在 `children` 数组中添加：
+
+```javascript
+{ path: 'products', name: 'ProductList', component: () => import('../views/ProductList.vue') }
+```
+
+### 5. 添加菜单项
+**文件**：`frontend/src/views/Dashboard.vue`
+
+在 `menuItems` 数组中添加：
+
+```javascript
+{ id: 15, label: '產品管理', path: '/dashboard/products', icon: '📦' }
+```
+
+### 6. 如果需要表单（新增/编辑），创建子页面
+**文件**：`frontend/src/views/ProductForm.vue`，并在路由中配置为子路由。
+
+---
+
+## 三、权限控制（可选）
+
+如果新功能需要特定权限（如只有管理员可访问），可以在后端视图设置：
+
+```python
+permission_classes = [permissions.IsAdminUser]
+```
+
+在前端菜单中根据 `isAdmin` 过滤（已在 `Dashboard.vue` 中实现 `adminOnly` 属性）。
+
+---
+
+## 四、开发顺序总结（推荐）
+
+| 顺序 | 后端操作 | 前端操作 |
+|------|---------|---------|
+| 1 | 定义 Model | – |
+| 2 | 执行 makemigrations/migrate | – |
+| 3 | 编写 Serializer | – |
+| 4 | 编写 ViewSet | – |
+| 5 | 注册路由 | – |
+| 6 | – | 创建 API 调用模块 |
+| 7 | – | 创建 Store |
+| 8 | – | 创建 View 组件 |
+| 9 | – | 添加路由 |
+| 10 | – | 添加菜单项 |
+| 11 | 测试 API（用 curl 或浏览器） | 测试前端页面 |
+
+---
+
+## 五、快速代码模板（复制即用）
+
+### 后端模板（ViewSet）
+```python
+class NewFeatureViewSet(viewsets.ModelViewSet):
+    queryset = NewModel.objects.all()
+    serializer_class = NewModelSerializer
+    permission_classes = [permissions.IsAuthenticated]
+```
+
+### 前端模板（Store）
+```javascript
+export const useNewFeatureStore = defineStore('newFeature', {
+  state: () => ({ data: [], loading: false }),
+  actions: {
+    async fetchData() {
+      this.loading = true
+      try {
+        const res = await api.get('/new-feature/')
+        this.data = res.data
+      } finally { this.loading = false }
+    }
+  }
+})
+```
+
+### 菜单项模板
+```javascript
+{ id: 99, label: '新功能', path: '/dashboard/new-feature', icon: '✨' }
+```
+
+---
+
+按照这个清单，你可以系统性地增加任意新功能，保持代码结构清晰、可维护。如果新增功能需要复杂的业务逻辑（如报表、文件上传），再针对性地添加相应代码。

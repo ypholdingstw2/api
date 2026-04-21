@@ -1,15 +1,21 @@
 <template>
   <div class="func-placeholder">
-    <h2>功能 {{ funcId }} - 開發中</h2>
+    <h2>{{ fullTitle }}</h2>
+    <p>功能路徑: {{ parentLabel }} / {{ label }}</p>
     <p>此功能正在建置中，請稍後再試。</p>
     <div class="mock-icon">🛠️</div>
   </div>
 </template>
 
 <script setup>
-defineProps({
-  funcId: Number
+import { computed } from 'vue'
+
+const props = defineProps({
+  label: String,
+  parentLabel: String
 })
+
+const fullTitle = computed(() => `${props.parentLabel} / ${props.label}`)
 </script>
 
 <style scoped>
