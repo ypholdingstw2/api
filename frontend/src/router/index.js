@@ -117,6 +117,11 @@ const menuTree = [
         children: [
           { id: 'tech_dev', label: '技術指標開發', path: '/dashboard/analysis-engine/technical/dev', icon: '🛠️' },
           { id: 'tech_optimize', label: '技術指標優化', path: '/dashboard/analysis-engine/technical/optimize', icon: '⚡' },
+          
+          // 在 children 数组中添加
+            { path: 'optimize', component: () => import('../views/analysis_engine/technical/Optimize.vue') },
+            { path: 'optimize/:indicator', component: () => import('../views/analysis_engine/technical/OptimizeDetail.vue') },
+
           { id: 'tech_evaluate', label: '技術指標評價', path: '/dashboard/analysis-engine/technical/evaluate', icon: '⭐' }
         ]
       },
@@ -302,6 +307,33 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
 })
+
+
+// frontend/src/router/index.js
+const routes = [
+  {
+    path: '/analysis/technical/optimize',
+    component: () => import('@/views/analysis_engine/technical/Optimize.vue'),
+    meta: { requiresAuth: true, roles: ['researcher'] }  // 僅研究員可見
+  },
+  {
+    path: '/analysis/results',
+    component: () => import('@/views/analysis_engine/results/ResultsList.vue'),
+    meta: { requiresAuth: true, roles: ['trader', 'researcher'] }  // 兩者皆可
+  }
+]
+
+// 路由守衛
+router.beforeEach((to, from, next) => {
+  const user = useUserStore().currentUser;
+  if (to.meta.requiresAuth && !user) {
+    next('/login');
+  } else if (to.meta.roles && !to.meta.roles.includes(user?.role)) {
+    next('/403');  // 無權限頁面
+  } else {
+    next();
+  }
+});
 
 // 关键修复：路由守卫自动补全缺失的 /dashboard 前缀
 router.beforeEach((to, from) => {

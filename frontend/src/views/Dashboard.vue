@@ -137,16 +137,36 @@ const menuTree = [
           { id: 'event_analysis', label: '事件分析', path: '/dashboard/analysis-engine/fundamental/event', icon: '📅' }
         ]
       },
+      // {
+      //   id: 'technical',
+      //   label: '技術分析',
+      //   icon: '📈',
+      //   children: [
+      //     { id: 'tech_dev', label: '技術指標開發', path: '/dashboard/analysis-engine/technical/dev', icon: '🛠️' },
+      //     { id: 'tech_optimize', label: '技術指標優化', path: '/dashboard/analysis-engine/technical/optimize', icon: '⚡' },
+      //     { id: 'tech_evaluate', label: '技術指標評價', path: '/dashboard/analysis-engine/technical/evaluate', icon: '⭐' }
+      //   ]
+      // },
       {
         id: 'technical',
         label: '技術分析',
         icon: '📈',
         children: [
           { id: 'tech_dev', label: '技術指標開發', path: '/dashboard/analysis-engine/technical/dev', icon: '🛠️' },
-          { id: 'tech_optimize', label: '技術指標優化', path: '/dashboard/analysis-engine/technical/optimize', icon: '⚡' },
+          {
+            id: 'tech_optimize',
+            label: '技術指標優化',
+            icon: '⚡',
+            children: [
+              { id: 'optimize_ma', label: '移動平均線(MA)', path: '/dashboard/analysis-engine/technical/optimize/ma', icon: '📊' },
+              { id: 'optimize_macd', label: 'MACD', path: '/dashboard/analysis-engine/technical/optimize/macd', icon: '📈' },
+              { id: 'optimize_rsi', label: 'RSI', path: '/dashboard/analysis-engine/technical/optimize/rsi', icon: '📉' }
+            ]
+          },
           { id: 'tech_evaluate', label: '技術指標評價', path: '/dashboard/analysis-engine/technical/evaluate', icon: '⭐' }
         ]
       },
+      
       {
         id: 'risk',
         label: '風險分析',
